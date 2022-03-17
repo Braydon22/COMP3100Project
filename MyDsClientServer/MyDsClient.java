@@ -3,27 +3,26 @@ import java.net.*;
 public class MyDsClient {  
 public static void main(String[] args) {  
 try{      
-Socket s=new Socket("localhost",50000);  
+Socket s=new Socket("localhost", 50000);  
 DataOutputStream os=new DataOutputStream(s.getOutputStream());
-DataInputStream is=new DataInputStream(s.getInputStream());
-BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+BufferedReader in=new BufferedReader(new InputStreamReader(s.getInputStream()));
 
-String serverMsg = "", cmd = "", helo="HELO", auth="AUTH braydon";
+String serverMsg = "", cmd = "", helo="HELO\n", auth="AUTH braydon\n";
 
 // establish connection
 os.write(helo.getBytes("US-ASCII"));
 os.write(auth.getBytes("US-ASCII"));
 
+os.write(("REDY\n").getBytes("US-ASCII"));
 
-while(!cmd.equals("QUIT")) {
-cmd = br.readLine();
-os.write(cmd.getBytes("US-ASCII"));
-serverMsg = is.readUTF();
+serverMsg = in.readLine();
 System.out.println("Server: "+serverMsg);
-}
 
-os.close();
-is.close(); 
+os.write(("QUIT\n").getBytes("US-ASCII"));
+
+
+
+os.close(); 
 s.close();  
 }catch(Exception e){System.out.println(e);}  
 }  
