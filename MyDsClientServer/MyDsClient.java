@@ -1,12 +1,5 @@
 import java.io.*;  
-import java.net.*;
-import javax.xml.parsers.DocumentBuilderFactory;  
-import javax.xml.parsers.DocumentBuilder;  
-import org.w3c.dom.Document;  
-import org.w3c.dom.NodeList;  
-import org.w3c.dom.Node;  
-import org.w3c.dom.Element;  
-import java.io.File; 
+import java.net.*; 
 
 public class MyDsClient {  
 public static void main(String[] args) {  
@@ -28,20 +21,17 @@ os.write(auth.getBytes("US-ASCII"));
 
 
 
-
 // get largest server type
 serverMsg = in.readLine();
 if(serverMsg.equals("OK")){
 os.write(("REDY\n").getBytes("US-ASCII"));
-
 os.write(("GETS All\n").getBytes("US-ASCII"));
 
+// skip JOBN and read DATA
 serverMsg = in.readLine();
 while(!serverMsg.split(" ")[0].equals("DATA")) {
 serverMsg = in.readLine();
 String[] curServerMsgVals = serverMsg.split(" ");
-
-System.out.println(serverMsg);
 }
 
 // loop through data to get largest server type
@@ -75,6 +65,7 @@ os.write(("OK\n").getBytes("US-ASCII"));
 System.out.println("OK");
 }
 
+// schedule first job
 serverMsg = in.readLine();
 if(serverMsg.equals(".")){
 os.write(("SCHD 0 "+largestServer.type+" "+largestServer.id+"\n").getBytes("US-ASCII"));
@@ -83,10 +74,11 @@ os.write(("SCHD 0 "+largestServer.type+" "+largestServer.id+"\n").getBytes("US-A
 
 
 
-// get and schedule jobs 
+// get and schedule remaining jobs 
 while(!serverMsg.equals("NONE")) {
 serverMsg = in.readLine();
 String[] serverMsgVals = serverMsg.split(" ");
+System.out.println("Server: "+serverMsg);
 //System.out.println("Server: "+serverMsgVals[0]);
  
 
@@ -132,26 +124,26 @@ os.write(("REDY\n").getBytes("US-ASCII"));
 os.write(("GETS Type "+largestServer.type+"\n").getBytes("US-ASCII"));
 
 os.write(("OK\n").getBytes("US-ASCII"));
+System.out.println("Client: OK");
+
 os.write(("OK\n").getBytes("US-ASCII"));
-
-
+System.out.println("Client: OK");
 }
 
 if(serverMsgVals[0].equals("JOBN")) {
 os.write(("SCHD "+serverMsgVals[2]+" "+largestServer.type+" "+largestServer.id+"\n").getBytes("US-ASCII"));
-//System.out.println("SCHD "+serverMsgVals[2]+" "+largestServer.type+" "+largestServer.id);
+System.out.println("SCHD "+serverMsgVals[2]+" "+largestServer.type+" "+largestServer.id);
 }
 
 
 if(serverMsgVals[0].equals("JCPL")){
 os.write(("REDY\n").getBytes("US-ASCII"));
+}
 
-if(serverMsgVals[0].equals("ERR:") || serverMsg.equals("")){
+if(serverMsgVals[0].equals("ERR:")){
 break;
 }
-}
 
-System.out.println("Server: "+serverMsg);
 }
 
 os.write(("QUIT\n").getBytes("US-ASCII"));
