@@ -72,16 +72,35 @@ public class MyDsClient {
       while (!serverMsg.equals("NONE")) {
         serverMsg = in.readLine();
         String[] serverMsgVals = serverMsg.split(" ");
-        System.out.println("Server: " + serverMsg);
+        System.out.println("Server Global Start: " + serverMsg);
         // System.out.println("Server: "+serverMsgVals[0]);
 
-        if (serverMsgVals[0].equals("DATA")) {
+        if (serverMsg.equals("OK")) {
+          
+          os.write(("REDY\n").getBytes("US-ASCII"));
+          
+          os.write(("GETS Type " + largestServer.type + "\n").getBytes("US-ASCII"));
 
+          // wait for data 
+          while(!serverMsgVals[0].equals("DATA")){
+            serverMsg = in.readLine();
+            serverMsgVals = serverMsg.split(" ");
+            //System.out.println("Waiting for Data: "+serverMsg);
+
+          }
+          os.write(("OK\n").getBytes("US-ASCII"));
+          //System.out.println("Client: OK");
+
+          // get sersers of largest type
+        if (serverMsgVals[0].equals("DATA")) {
+          //System.out.println("Server: " + serverMsg);
           String serverInfo;
           int numberOfLargestServer = Integer.parseInt(serverMsgVals[1]);
 
           for (int i = 0; i < numberOfLargestServer; i++) {
-            serverInfo = in.readLine();
+            serverMsg = in.readLine();
+            serverInfo = serverMsg;
+            System.out.println("Server Info: "+serverInfo);
             String[] serverInfoVals = serverInfo.split(" ");
 
             if (nextLargestServerIdx == i) {
@@ -95,46 +114,47 @@ public class MyDsClient {
                   Integer.parseInt(serverInfoVals[5]));
 
               largestServer = sInfo;
-              nextLargestServerIdx++;
-
-              break;
             }
 
-            // sInfo.printServerInfo();
           }
 
+          nextLargestServerIdx++;
           if (nextLargestServerIdx == numberOfLargestServer) {
             nextLargestServerIdx = 0;
           }
 
         }
 
-        if (serverMsg.equals("OK")) {
-          os.write(("REDY\n").getBytes("US-ASCII"));
-
-          os.write(("GETS Type " + largestServer.type + "\n").getBytes("US-ASCII"));
-
           os.write(("OK\n").getBytes("US-ASCII"));
-          System.out.println("Client: OK");
-
-          os.write(("OK\n").getBytes("US-ASCII"));
-          System.out.println("Client: OK");
-        }
-
-        if (serverMsgVals[0].equals("JOBN")) {
-          os.write(("SCHD " + serverMsgVals[2] + " " + largestServer.type + " " + largestServer.id + "\n")
+          //System.out.println("Client: OK");
+          
+          // ready receie job once all data is received
+          serverMsg = in.readLine();
+          //System.out.println("DATA END: "+serverMsg);
+          if(serverMsg.equals(".")){
+            os.write(("REDY\n").getBytes("US-ASCII"));
+          }
+          
+          // skip JCPL 
+          serverMsg = in.readLine();
+          while(serverMsg.split(" ")[0].equals("JCPL")){
+            os.write(("REDY\n").getBytes("US-ASCII"));
+            serverMsg = in.readLine();
+          }
+          
+          //schedule job
+          if(serverMsg.split(" ")[0].equals("JOBN")){
+              os.write(("SCHD " + serverMsg.split(" ")[2] + " " + largestServer.type + " " + largestServer.id + "\n")
               .getBytes("US-ASCII"));
-          System.out.println("SCHD " + serverMsgVals[2] + " " + largestServer.type + " " + largestServer.id);
-        }
-
-        if (serverMsgVals[0].equals("JCPL")) {
-          os.write(("REDY\n").getBytes("US-ASCII"));
+              System.out.println("SCHD " + serverMsg.split(" ")[2] + " " + largestServer.type + " " + largestServer.id);
+          }
         }
 
         if (serverMsgVals[0].equals("ERR:")) {
           break;
         }
 
+        System.out.println("Server Global END: "+serverMsg);
       }
 
       os.write(("QUIT\n").getBytes("US-ASCII"));
