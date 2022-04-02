@@ -35,7 +35,6 @@ public class MyDsClient {
 
         // loop through data to get largest server type
         sendMessageToServer("OK", os);
-        System.out.println("OK");
         String[] dataVals = serverMsg.split(" ");
         if (dataVals[0].equals("DATA")) {
           int numberOfServers = Integer.parseInt(dataVals[1]);
@@ -53,20 +52,19 @@ public class MyDsClient {
               int serverDisk = Integer.parseInt(serverInfoVals[6]);
 
               largestServer = new ServerInfo(serverType, serverId, serverState, serverCores, serverMemory, serverDisk);
-              System.out.println(largestServer.type);
             }
 
           }
 
         }
         sendMessageToServer("OK", os);
-        System.out.println("OK");
       }
 
       // schedule first job
       serverMsg = in.readLine();
       if (serverMsg.equals(".")) {
         sendMessageToServer("SCHD 0 " + largestServer.type + " " + largestServer.id, os);
+        System.out.println("SCHD 0 " + largestServer.type + " " + largestServer.id);
       }
 
       // get and schedule remaining jobs
@@ -134,8 +132,6 @@ public class MyDsClient {
         if (serverMsg.split(" ")[0].equals("ERR:")) {
           break;
         }
-
-        System.out.println("Server Global END: "+serverMsg);
       }
 
       sendMessageToServer("QUIT", os);
