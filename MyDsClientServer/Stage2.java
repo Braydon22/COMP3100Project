@@ -51,28 +51,29 @@ public class Stage2 {
 
         if(serverMsgVals[0].equals("DATA")) {
           sendMessageToServer("OK", os);
-          // for(int i = 0; i < Integer.parseInt(serverMsgVals[1]); i++) {
-          //   if(i == 0) {
-          //     String[] serverInfo = in.readLine().split(" ");
-          //     //System.out.println("Current Job Id: " + curJobId);
-          //     targetServerName = serverInfo[0];
-          //     targetServerID = serverInfo[1];
-              
-          //   }else {
-          //     serverMsgVals = in.readLine().split(" ");
-          //   }
-          // }
+
           String curLargestTye = "";
           int curLargestId = 0;
           int curLargestCore = 0;
              for(int i = 0; i < Integer.parseInt(serverMsgVals[1]); i++) {
            
               String[] serverInfo = in.readLine().split(" ");
-              if(Integer.parseInt(serverInfo[4]) > curLargestCore){
+              int curServerCores = Integer.parseInt(serverInfo[4]);
+              Double curServerWaitingJobs = Double.parseDouble(serverInfo[7]);
+              Double curServerRunningJobs = Double.parseDouble(serverInfo[8]);
+              Double totalJobs = curServerRunningJobs + curServerWaitingJobs;
+
+              if((curServerCores > curLargestCore)){
+                if( (curServerRunningJobs == 0 && curServerWaitingJobs == 0) || ( (curServerWaitingJobs / totalJobs) * 100 < 80)){
+                System.out.println("waiting jobs: " + serverInfo[7] + " running jobs: " + serverInfo[8] + " " );
+                //if(curServerRunningJobs != 0 && curServerWaitingJobs != 0) {
+                  //System.out.println((curServerWaitingJobs / totalJobs) * 100);
+                //}
                 curLargestCore = Integer.parseInt(serverInfo[4]);
 
                 curLargestTye = serverInfo[0];
                 curLargestId = Integer.parseInt(serverInfo[1]);
+                }
               }
               //System.out.println("Current Job Id: " + curJobId);
               
@@ -80,11 +81,6 @@ public class Stage2 {
 
           targetServerInfo.type = curLargestTye;
           targetServerInfo.id = curLargestId;
-
-          // String[] serverInfo = in.readLine().split(" ");
-          // //System.out.println("Current Job Id: " + curJobId);
-          // targetServerName = serverInfo[0];
-          // targetServerID = serverInfo[1];
 
           sendMessageToServer("OK", os);
           
