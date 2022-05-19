@@ -43,9 +43,9 @@ public class Stage2 {
           sendMessageToServer("GETS Capable " + serverMsgVals[4] + " " + serverMsgVals[5] + " " + serverMsgVals[6], os);
 
           
-          // while(serverMsgVals[0].equals("JOBN")) {
-          //    serverMsgVals = in.readLine().split(" ");  
-          // }
+          while(serverMsgVals[0].equals("JOBN")) {
+             serverMsgVals = in.readLine().split(" ");  
+          }
        
         }
 
