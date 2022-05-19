@@ -70,9 +70,14 @@ public class Stage2 {
                 curCapableTye = serverInfo[0];
                 curCapableId = Integer.parseInt(serverInfo[1]);
                 
-                if(curServerWaitingJobs == 0){
-                  break;
-                }
+                 if(curServerWaitingJobs < 5) {
+                   break;
+                 }
+
+                // if((curServerWaitingJobs > 0)&&(curServerWaitingJobs / totalJobs) * 100 < 60){
+                //   break;
+                // }
+            
               }
               //System.out.println("Current Job Id: " + curJobId);
               
