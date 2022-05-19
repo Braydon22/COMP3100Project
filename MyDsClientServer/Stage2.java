@@ -43,17 +43,17 @@ public class Stage2 {
           sendMessageToServer("GETS Capable " + serverMsgVals[4] + " " + serverMsgVals[5] + " " + serverMsgVals[6], os);
 
           
-          while(serverMsgVals[0].equals("JOBN")) {
-             serverMsgVals = in.readLine().split(" ");  
-          }
+          // while(serverMsgVals[0].equals("JOBN")) {
+          //    serverMsgVals = in.readLine().split(" ");  
+          // }
        
         }
 
         if(serverMsgVals[0].equals("DATA")) {
           sendMessageToServer("OK", os);
 
-          String curLargestTye = "";
-          int curLargestId = 0;
+          String curCapableTye = "";
+          int curCapableId = 0;
           int curLargestCore = 0;
              for(int i = 0; i < Integer.parseInt(serverMsgVals[1]); i++) {
            
@@ -64,23 +64,22 @@ public class Stage2 {
               Double totalJobs = curServerRunningJobs + curServerWaitingJobs;
 
               if((curServerCores > curLargestCore)){
-                if( (curServerRunningJobs == 0 && curServerWaitingJobs == 0) || ( (curServerWaitingJobs / totalJobs) * 100 < 80)){
-                System.out.println("waiting jobs: " + serverInfo[7] + " running jobs: " + serverInfo[8] + " " );
-                //if(curServerRunningJobs != 0 && curServerWaitingJobs != 0) {
-                  //System.out.println((curServerWaitingJobs / totalJobs) * 100);
-                //}
+              System.out.println("waiting jobs: " + serverInfo[7] + " running jobs: " + serverInfo[8] + " " + "Server: " + serverInfo[0] + " " + serverInfo[1]);
                 curLargestCore = Integer.parseInt(serverInfo[4]);
 
-                curLargestTye = serverInfo[0];
-                curLargestId = Integer.parseInt(serverInfo[1]);
+                curCapableTye = serverInfo[0];
+                curCapableId = Integer.parseInt(serverInfo[1]);
+                
+                if(curServerWaitingJobs == 0){
+                  break;
                 }
               }
               //System.out.println("Current Job Id: " + curJobId);
               
           }
 
-          targetServerInfo.type = curLargestTye;
-          targetServerInfo.id = curLargestId;
+          targetServerInfo.type = curCapableTye;
+          targetServerInfo.id = curCapableId;
 
           sendMessageToServer("OK", os);
           
