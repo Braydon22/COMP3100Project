@@ -22,6 +22,9 @@ public class Stage2 {
       // get and schedule remaining jobs until server send NONE
       
       int curJobId = -1;
+      int curJobRequiredCores = 0;
+      int curJobRequiredMemory = 0;
+      int curJobRequiredDisk = 0;
       String targetServerName = "";
       String targetServerID = "";
       ServerInfo targetServerInfo = new ServerInfo("N/A", -1, "N/A", -1, -1, -1);
@@ -39,6 +42,9 @@ public class Stage2 {
           
           // store current job id
           curJobId = Integer.parseInt(serverMsgVals[2]);
+          curJobRequiredCores = Integer.parseInt(serverMsgVals[4]);
+          curJobRequiredMemory = Integer.parseInt(serverMsgVals[5]);
+          curJobRequiredDisk = Integer.parseInt(serverMsgVals[6]);
           //System.out.println("GETS Capable " + serverMsgVals[4] + " " + serverMsgVals[5] + " " + serverMsgVals[6]);
           sendMessageToServer("GETS Capable " + serverMsgVals[4] + " " + serverMsgVals[5] + " " + serverMsgVals[6], os);
 
@@ -59,26 +65,33 @@ public class Stage2 {
            
               String[] serverInfo = in.readLine().split(" ");
               int curServerCores = Integer.parseInt(serverInfo[4]);
+              int curServerMemory = Integer.parseInt(serverInfo[5]);
+              int curServerDisk = Integer.parseInt(serverInfo[6]);
               Double curServerWaitingJobs = Double.parseDouble(serverInfo[7]);
               Double curServerRunningJobs = Double.parseDouble(serverInfo[8]);
-              Double totalJobs = curServerRunningJobs + curServerWaitingJobs;
+              // Double totalJobs = curServerRunningJobs + curServerWaitingJobs;
 
-              if((curServerCores > curLargestCore)){
+              //if((curServerCores > curLargestCore)){
               System.out.println("waiting jobs: " + serverInfo[7] + " running jobs: " + serverInfo[8] + " " + "Server: " + serverInfo[0] + " " + serverInfo[1]);
                 curLargestCore = Integer.parseInt(serverInfo[4]);
 
                 curCapableTye = serverInfo[0];
                 curCapableId = Integer.parseInt(serverInfo[1]);
                 
-                 if(curServerWaitingJobs < 5) {
+                 if(curServerMemory >= curJobRequiredMemory && curServerDisk >= curJobRequiredDisk && curServerCores >= curJobRequiredCores) {
                    break;
                  }
+                
+                
+                //   if(curServerCores == 0){
+                //    break;
+                //  }
 
                 // if((curServerWaitingJobs > 0)&&(curServerWaitingJobs / totalJobs) * 100 < 60){
                 //   break;
                 // }
             
-              }
+              //}
               //System.out.println("Current Job Id: " + curJobId);
               
           }
