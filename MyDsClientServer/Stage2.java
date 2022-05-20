@@ -78,7 +78,7 @@ public class Stage2 {
                 curCapableTye = serverInfo[0];
                 curCapableId = Integer.parseInt(serverInfo[1]);
                 
-                 if(curServerMemory >= curJobRequiredMemory && curServerDisk >= curJobRequiredDisk && curServerCores >= curJobRequiredCores) {
+                 if(curServerMemory >= curJobRequiredMemory && curServerDisk >= curJobRequiredDisk && curServerCores >= curJobRequiredCores && curServerWaitingJobs == 0) {
                    break;
                  }
                 
