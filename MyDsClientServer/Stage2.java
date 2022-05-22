@@ -12,90 +12,93 @@ public class Stage2 {
       String serverMsg = "";
 
       // establish connection
-      
       sendMessageToServer("HELO", os);
       
       sendMessageToServer("AUTH braydon", os);
 
   
   
-      // get and schedule remaining jobs until server send NONE
       
+      
+      // global job information variables
       int curJobId = -1;
       int curJobRequiredCores = 0;
       int curJobRequiredMemory = 0;
       int curJobRequiredDisk = 0;
-      String targetServerName = "";
-      String targetServerID = "";
+    
+      // target server object to store server information
       ServerInfo targetServerInfo = new ServerInfo("N/A", -1, "N/A", -1, -1, -1);
+
+      // main loop for job scheduling
       while (!serverMsg.equals("NONE")) {
         
+        // read and store server messages
         serverMsg = in.readLine();
         String[] serverMsgVals = serverMsg.split(" ");
-        //System.out.println(serverMsg);
+       
+
         // handle OK and JCPL
         if(serverMsg.equals("OK") || serverMsgVals[0].equals("JCPL")) {
           sendMessageToServer("REDY", os);
         }
         
+        // handle jobs
         if (serverMsgVals[0].equals("JOBN")) {
           
-          // store current job id
-          curJobId = Integer.parseInt(serverMsgVals[2]);
+          // store current job id        
+          curJobId = Integer.parseInt(serverMsgVals[2]);         
           curJobRequiredCores = Integer.parseInt(serverMsgVals[4]);
           curJobRequiredMemory = Integer.parseInt(serverMsgVals[5]);
           curJobRequiredDisk = Integer.parseInt(serverMsgVals[6]);
-          //System.out.println("GETS Capable " + serverMsgVals[4] + " " + serverMsgVals[5] + " " + serverMsgVals[6]);
+         
           sendMessageToServer("GETS Capable " + serverMsgVals[4] + " " + serverMsgVals[5] + " " + serverMsgVals[6], os);
 
-          
+          // skip rest of JOBN
           while(serverMsgVals[0].equals("JOBN")) {
              serverMsgVals = in.readLine().split(" ");  
           }
        
         }
 
+        // handle server data
         if(serverMsgVals[0].equals("DATA")) {
           sendMessageToServer("OK", os);
-
+          
           String curCapableTye = "";
           int curCapableId = 0;
-          int curLargestCore = 0;
+            
+          // iterate through all potential capable servers
              for(int i = 0; i < Integer.parseInt(serverMsgVals[1]); i++) {
            
               String[] serverInfo = in.readLine().split(" ");
+
+               // currrent server information
               int curServerCores = Integer.parseInt(serverInfo[4]);
               int curServerMemory = Integer.parseInt(serverInfo[5]);
               int curServerDisk = Integer.parseInt(serverInfo[6]);
-              Double curServerWaitingJobs = Double.parseDouble(serverInfo[7]);
-              Double curServerRunningJobs = Double.parseDouble(serverInfo[8]);
-              // Double totalJobs = curServerRunningJobs + curServerWaitingJobs;
-
-              //if((curServerCores > curLargestCore)){
+              int curServerWaitingJobs = Integer.parseInt(serverInfo[7]);
+      
+            
               System.out.println("waiting jobs: " + serverInfo[7] + " running jobs: " + serverInfo[8] + " " + "Server: " + serverInfo[0] + " " + serverInfo[1]);
-                curLargestCore = Integer.parseInt(serverInfo[4]);
+              
+              // store capable server information
+              curCapableTye = serverInfo[0];
+              curCapableId = Integer.parseInt(serverInfo[1]);
 
-                curCapableTye = serverInfo[0];
-                curCapableId = Integer.parseInt(serverInfo[1]);
-                
-                 if(curServerMemory >= curJobRequiredMemory && curServerDisk >= curJobRequiredDisk && curServerCores >= curJobRequiredCores && curServerWaitingJobs == 0) {
+                // break once the capable server is found
+                 if(curServerMemory >= curJobRequiredMemory && 
+                 curServerDisk >= curJobRequiredDisk && 
+                 curServerCores >= curJobRequiredCores && 
+                 curServerWaitingJobs == 0              
+                 ) {
+
                    break;
                  }
-                
-                
-                //   if(curServerCores == 0){
-                //    break;
-                //  }
-
-                // if((curServerWaitingJobs > 0)&&(curServerWaitingJobs / totalJobs) * 100 < 60){
-                //   break;
-                // }
-            
-              //}
-              //System.out.println("Current Job Id: " + curJobId);
+              
               
           }
 
+          // store capable server information globally
           targetServerInfo.type = curCapableTye;
           targetServerInfo.id = curCapableId;
 
@@ -103,17 +106,20 @@ public class Stage2 {
           
         }
 
+        // after all data received
         if(serverMsgVals[0].equals(".")){
+          // schedule job with global server and job information
           sendMessageToServer("SCHD " + curJobId + " "+ targetServerInfo.type + " " + targetServerInfo.id, os);
         }
 
         
-
+        // quit if errors received 
         if (serverMsg.split(" ")[0].equals("ERR:")) {
           break;
         }
       }
 
+      // quit
       sendMessageToServer("QUIT", os);
 
       os.close();
@@ -133,6 +139,7 @@ public class Stage2 {
   }
 }
 
+// to store server information
 class ServerInfo {
 
   String type;
